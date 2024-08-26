@@ -27,4 +27,3 @@ typedef struct _INITDATA
   TIMEINFO start_time;
   } 
 INITDATA;
-

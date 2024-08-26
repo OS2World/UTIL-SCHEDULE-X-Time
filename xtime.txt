@@ -9,7 +9,6 @@ Aaron Walton
 St. Joseph, MI  49085
 (616) 982-5782  (work)
 
-----
 
 
 X-TIME
@@ -77,4 +76,5 @@ the command will search first in the same path and then in the
 PATH for an ICON file to associate to the starting session, else
 only the PATH will be searched.
 If no file named as the specified program name, but with "ICO" as
-last qualifier is found a default ICON will be used.
+last qualifier is found a default ICON will be used.
+

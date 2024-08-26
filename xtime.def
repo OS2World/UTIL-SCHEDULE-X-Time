@@ -4,8 +4,7 @@
 
 NAME           XTime  WINDOWAPI
 
-DESCRIPTION    'eXecute a command at a certain TIME (C) Aaron Walton, 1990'
-PROTMODE
-HEAPSIZE       1024
-STACKSIZE      8192
-EXPORTS        ClientWndProc
+DESCRIPTION    '@#OS2World:1.01#@##1## 25 Ago 2024 20:00:00     ARCAOS-510::::::v1.01@@eXecute a command at a certain TIME'
+;HEAPSIZE       1024
+;STACKSIZE      8192
+;EXPORTS        ClientWndProc

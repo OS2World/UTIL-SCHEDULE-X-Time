@@ -15,7 +15,7 @@
 
 #include "xtime.h"
 
-MRESULT EXPENTRY ClientWndProc (HWND, USHORT, MPARAM, MPARAM) ;
+MRESULT EXPENTRY ClientWndProc (HWND, ULONG, MPARAM, MPARAM) ;
 VOID    SizeTheWindow (HWND) ;
 INT     Params (int, char **) ;
 
@@ -24,21 +24,21 @@ CHAR     Process_Slayed = FALSE ;
 
 TIMEINFO start_time ;
 
-USHORT   idSession, id ;
+PULONG idSession, id ;
 
 STARTDATA scntl = {
        50,                        /* Length               */
        FALSE,                     /* Related              */
        FALSE,                     /* FgBg                 */
        FALSE,                     /* TraceOpt             */
-       "",                        /* PgmTitle             */
-       "",                        /* PgmName              */
-       "",                        /* PgmInputs            */
-       "",                        /* TermQ                */
+       (unsigned char *) "",                        /* PgmTitle             */
+       (unsigned char *) "",                        /* PgmName              */
+       (unsigned char *) "",                        /* PgmInputs            */
+       (unsigned char *) "",                        /* TermQ                */
        0,                         /* Environment          */
        FALSE,                     /* InheritOpt           */
        0,                         /* SessionType          */
-       "",                        /* IconFile             */
+       (unsigned char *) "",                        /* IconFile             */
        0,                         /* PgmHandle            */
        0x0000,                    /* PgmControl           */
        0,0,                       /* InitXPos, InitYPos   */
@@ -61,34 +61,34 @@ int main (int argc, char *argv[])
      hab = WinInitialize (0) ;
      hmq = WinCreateMsgQueue (hab, 0) ;
 
-     WinRegisterClass (hab, szClientClass, ClientWndProc, 0L, 0) ;
+     WinRegisterClass (hab, (PCSZ) szClientClass, ClientWndProc, 0L, 0) ;
 
      hwndFrame = WinCreateStdWindow (HWND_DESKTOP, WS_VISIBLE,
-                                     &flFrameFlags, szClientClass, NULL,
-                                     0L, NULL, 0, &hwndClient) ;
+                                     &flFrameFlags, (PCSZ) szClientClass, NULL,
+                                     0L, NULLHANDLE, 0, &hwndClient) ;
      SizeTheWindow (hwndFrame) ;
 
      if (WinStartTimer (hab, hwndClient, ID_TIMER, 1000))
           {
-          if (exitrc = Params(argc, &argv[0]) == NO_ERROR)
-              while (WinGetMsg (hab, &qmsg, NULL, 0, 0))
+          if ((exitrc = Params(argc, &argv[0])) == NO_ERROR)
+              while (WinGetMsg (hab, &qmsg, NULLHANDLE, 0, 0))
                     WinDispatchMsg (hab, &qmsg) ;
           else {
-               if (exitrc == PROGRAM_NOT_FOUND)
+               if (exitrc == PROGRAM_NOT_FOUND){
                   sprintf(szErrorMsg, "Unable to locate Program");
-
-               if (exitrc == SEMANTIC_ERROR)
+				}
+               if (exitrc == SEMANTIC_ERROR){
                   sprintf (szErrorMsg, "Start Session Options invalid or program name not specified");
-
-               WinMessageBox (HWND_DESKTOP, hwndClient, "Some Duffus Error", 
-                              szClientClass, 0, MB_OK | MB_ICONEXCLAMATION);
+                  }
+				WinMessageBox (HWND_DESKTOP, hwndClient, (PCSZ) "Some Duffus Error", 
+                              (PCSZ) szClientClass, 0, MB_OK | MB_ICONEXCLAMATION);
                }
           WinStopTimer (hab, hwndClient, ID_TIMER) ;
           }
      else
           WinMessageBox (HWND_DESKTOP, hwndClient,
-                         "Too many clocks or timers",
-                         szClientClass, 0, MB_OK | MB_ICONEXCLAMATION) ;
+                         (PCSZ) "Too many clocks or timers",
+                         (PCSZ) szClientClass, 0, MB_OK | MB_ICONEXCLAMATION) ;
 
      WinDestroyWindow (hwndFrame) ;
      WinDestroyMsgQueue (hmq) ;
@@ -113,9 +113,9 @@ VOID SizeTheWindow (HWND hwndFrame)
 
      WinCalcFrameRect (hwndFrame, &rcl, FALSE) ;
 
-     WinSetWindowPos (hwndFrame, NULL, (SHORT) rcl.xLeft, (SHORT) rcl.yBottom,
-                      (SHORT) (rcl.xRight - rcl.xLeft),
-                      (SHORT) (rcl.yTop - rcl.yBottom), SWP_SIZE | SWP_MOVE) ;
+     WinSetWindowPos (hwndFrame, NULLHANDLE, (LONG) rcl.xLeft, (LONG) rcl.yBottom,
+                      (LONG) (rcl.xRight - rcl.xLeft),
+                      (LONG) (rcl.yTop - rcl.yBottom), SWP_SIZE | SWP_MOVE) ;
      }
 
 
@@ -132,7 +132,7 @@ int Params(int argc, char *argv[])
                  PgmTime[32]   = "";
 
 
-     USHORT i,
+     ULONG i,
             hh, mm,
             name_found,
             time_found,
@@ -233,7 +233,7 @@ int Params(int argc, char *argv[])
      if (!name_found)
         return SEMANTIC_ERROR;
 
-     if (sscanf(PgmTime, "%u:%u", &hh, &mm) == 2)
+     if (sscanf(PgmTime, "%lu:%lu", &hh, &mm) == 2)
         if ((hh >= 0) && (mm >= 0) && (hh < 24) && (mm < 60))
            {
            start_time.hours = hh;
@@ -265,9 +265,9 @@ int Params(int argc, char *argv[])
      memset(PgmFName, '\0', sizeof(PgmFName));
 
      DosSearchPath(SearchCode,
-                   SearchPath,
-                   SearchName,
-                   PgmFName,
+                   (PCSZ) SearchPath,
+                   (PCSZ) SearchName,
+                   (PBYTE) PgmFName,
                    sizeof(PgmFName));
 
      if (PgmFName[0]) {
@@ -279,7 +279,7 @@ int Params(int argc, char *argv[])
            _makepath(PgmFName, PgmDrive, PgmDir, PgmName, PgmExt);
            hdir = HDIR_SYSTEM;
 
-           if (DosFindFirst(PgmFName,
+           if (DosFindFirst((PCSZ)PgmFName,
                             &hdir,
                             FILE_NORMAL + FILE_READONLY + FILE_ARCHIVED,
                             &FFbufr,
@@ -292,7 +292,7 @@ int Params(int argc, char *argv[])
               SearchCnt = 1;
               hdir = HDIR_SYSTEM;
 
-              if (DosFindFirst(PgmFName,
+              if (DosFindFirst((PCSZ)PgmFName,
                                &hdir,
                                FILE_NORMAL + FILE_READONLY + FILE_ARCHIVED,
                                &FFbufr,
@@ -305,7 +305,7 @@ int Params(int argc, char *argv[])
                  SearchCnt = 1;
                  hdir = HDIR_SYSTEM;
 
-                 if (DosFindFirst(PgmFName,
+                 if (DosFindFirst((PCSZ)PgmFName,
                                   &hdir,
                                   FILE_NORMAL + FILE_READONLY + FILE_ARCHIVED,
                                   &FFbufr,
@@ -328,13 +328,13 @@ int Params(int argc, char *argv[])
 
         if (scntl.SessionType == 3)
             scntl.SessionType = 2;
-        scntl.PgmName = "CMD.EXE";
+        scntl.PgmName = (PSZ) "CMD.EXE";
         strcpy(PgmArgs, (retain_cmd ? "/K " : "/c "));
         strcat(PgmArgs, PgmFName);
         strcat(PgmArgs, " ");
         }
      else
-        scntl.PgmName = PgmFName;
+        scntl.PgmName = (PSZ) PgmFName;
 
      for (i++; i < argc; i++) {
 
@@ -342,10 +342,10 @@ int Params(int argc, char *argv[])
          strcat(PgmArgs, " ");
          }
 
-     scntl.PgmInputs = PgmArgs;
+     scntl.PgmInputs = (PBYTE) PgmArgs;
 
      if (PgmTitle[0])
-        scntl.PgmTitle = PgmTitle;
+        scntl.PgmTitle = (PSZ) PgmTitle;
      else
         scntl.PgmTitle = scntl.PgmName;
 
@@ -356,12 +356,12 @@ int Params(int argc, char *argv[])
      memset(IconName, '\0', sizeof(IconName));
 
      DosSearchPath(SearchCode,
-                   SearchPath,
-                   SearchName,
-                   IconName,
+                   (PCSZ) SearchPath,
+                   (PCSZ) SearchName,
+                   (PBYTE) IconName,
                    sizeof(IconName));
            
-     scntl.IconFile = IconName;
+     scntl.IconFile = (PSZ) IconName;
      
      return 0;
      }
@@ -374,13 +374,13 @@ VOID UpdateTime (HWND hwnd, HPS hps)
      static CHAR        *szDayName [] = { "Sun", "Mon", "Tue", "Wed",
                                           "Thu", "Fri", "Sat" } ;
      static CHAR        szDateFormat [] = " %s  %d%s%02d%s%02d " ;
-     static COUNTRYCODE ctryc = { 0, 0 } ;
+     //static COUNTRYCODE ctryc = { 0, 0 } ;
      static COUNTRYINFO ctryi ;
      int                erc ;
      CHAR               szBuffer [20] ;
      DATETIME           dt ;
      RECTL              rcl ;
-     USHORT             usDataLength ;
+     //ULONG              usDataLength ;
 
                /*----------------------------------------
                   Get Country Information, Date and Time
@@ -388,7 +388,7 @@ VOID UpdateTime (HWND hwnd, HPS hps)
 
      if (!fHaveCtryInfo)
           {
-          DosGetCtryInfo (sizeof ctryi, &ctryc, &ctryi, &usDataLength) ;
+          //DosGetCtryInfo (sizeof ctryi, &ctryc, &ctryi, &usDataLength) ;
           fHaveCtryInfo = TRUE ;
           }
      DosGetDateTime (&dt) ;
@@ -401,15 +401,15 @@ VOID UpdateTime (HWND hwnd, HPS hps)
            sprintf(szBuffer, "Executing ....") ;
            WinQueryWindowRect (hwnd, &rcl) ;
            rcl.yBottom += 5 * rcl.yTop / 11 ;
-           WinDrawText (hps, -1, szBuffer, &rcl, CLR_NEUTRAL, CLR_BACKGROUND,
+           WinDrawText (hps, -1, (PCCH) szBuffer, &rcl, CLR_NEUTRAL, CLR_BACKGROUND,
                         DT_CENTER | DT_VCENTER) ;
 /* Execute */
-           if (erc = DosStartSession( &scntl, &idSession, &id) != NO_ERROR) {
+           if ((erc = DosStartSession( &scntl, idSession, id)) != NO_ERROR) {
               sprintf(szBuffer, "Dos Start Session Ended with Error %d", erc);
 
               /* need to add for szClientClass */
-              WinMessageBox (HWND_DESKTOP, hwnd, szBuffer,
-                            "szClientClass", 0, MB_OK | MB_ICONEXCLAMATION) ;
+              WinMessageBox (HWND_DESKTOP, hwnd, (PCSZ) szBuffer,
+                            (PCSZ) "szClientClass", 0, MB_OK | MB_ICONEXCLAMATION) ;
               }
            }
         }
@@ -481,25 +481,25 @@ VOID UpdateTime (HWND hwnd, HPS hps)
 
      WinQueryWindowRect (hwnd, &rcl) ;
      rcl.yTop -= 5 * rcl.yTop / 11 ;
-     WinDrawText (hps, -1, szBuffer, &rcl, CLR_NEUTRAL, CLR_BACKGROUND,
+     WinDrawText (hps, -1, (PCSZ) szBuffer, &rcl, CLR_NEUTRAL, CLR_BACKGROUND,
                   DT_CENTER | DT_VCENTER) ;
              
                /*-------------------------
                   Display Execute Program
                  -------------------------*/
      if (Process_Executed)
-        sprintf(szBuffer, "Program ID %u Executed.", &idSession ) ;
+        sprintf(szBuffer, "Program ID %ln Executed.", idSession ) ;
      else
         sprintf (szBuffer, "%s", scntl.PgmName) ;
      WinQueryWindowRect (hwnd, &rcl) ;
      rcl.yBottom += 5 * rcl.yTop /11 ;
-     WinDrawText (hps, -1, szBuffer, &rcl, CLR_NEUTRAL, CLR_BACKGROUND,
+     WinDrawText (hps, -1, (PCCH) szBuffer, &rcl, CLR_NEUTRAL, CLR_BACKGROUND,
                   DT_CENTER | DT_VCENTER) ;
 
      
      }
 
-MRESULT EXPENTRY ClientWndProc (HWND hwnd, USHORT msg, MPARAM mp1, MPARAM mp2)
+MRESULT EXPENTRY ClientWndProc (HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2)
      {
      HPS  hps;
 
@@ -518,7 +518,7 @@ MRESULT EXPENTRY ClientWndProc (HWND hwnd, USHORT msg, MPARAM mp1, MPARAM mp2)
                return 0 ;
 
           case WM_PAINT:
-               hps = WinBeginPaint (hwnd, NULL, NULL) ;
+               hps = WinBeginPaint (hwnd, NULLHANDLE, NULL) ;
                GpiErase (hps) ;
 
                UpdateTime (hwnd, hps) ;
