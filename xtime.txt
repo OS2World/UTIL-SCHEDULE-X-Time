@@ -1,0 +1,80 @@
+This is a small PM program that I wrote to start applications a a specific time.
+It is not much but I intend to upgrade it when time permits.
+
+If you have any suggestions or ideas (or bugs) you can reach me at the address
+below
+
+Aaron Walton
+2508 Willa Dr. 
+St. Joseph, MI  49085
+(616) 982-5782  (work)
+
+----
+
+
+X-TIME
+(Execute an OS/2 Session at a specified time)
+
+Syntax:
+
+XTIME  /TIME:hh:mm [/TIT:title | "/TIT:session title"] [/NOC] [/BG] -
+         [/FS | /PM | /WIN] [/I] [/MIN | /MAX] -
+         {program name} [program arguments]                      
+
+
+Parameters: 
+
+     hh:mm                    Specify the time to start application
+                              in hours and minutes.  24 hour clock time
+                              this parameter is required.
+
+     title / session title    Specify the title to assign to the
+                              session wich will be displayed on
+                              the PM TASK MANAGER menu window
+
+     NOC                      Specify not to close the window
+                              when the program ends (valid only
+                              for WINDOWCOMPAT programs)
+
+     BG                       Specify to start the program in the
+                              in the background
+
+     FS                       Start the program as a FULL SCREEN
+                              Session (NOTWINDOWCOMPAT)
+ 
+     PM                       Start the program as a PM session
+                              (WINDOWAPI)    
+     
+     WIN                      Start the program in a PM compat.
+                              window (WINDOWCOMPAT)
+
+     I                        Specify to pass the current 
+                              ENVIRONMENT SETTINGS to the 
+                              starting session
+
+     MIN                      Sets the default state for the 
+                              starting session as MINIMIZED 
+                              (ICONIC) (valid only for PM or WIN
+                              application)
+
+     MAX                      Sets the default state for the 
+                              starting session as MAXIMIZED 
+                              (ICONIC) (valid only for PM or WIN
+                              application)
+
+     CMD                      indicates to start the program    
+                              specified invoking CMD.EXE 
+
+     K                        indicates to invoke CMD.EXE with
+                              the /K option. this parameter keeps
+                              the session when the program
+                              specified terminate   
+
+NOTE:
+
+If a full qualified file name is used to specify the program name
+the command will search first in the same path and then in the
+PATH for an ICON file to associate to the starting session, else
+only the PATH will be searched.
+If no file named as the specified program name, but with "ICO" as
+last qualifier is found a default ICON will be used.

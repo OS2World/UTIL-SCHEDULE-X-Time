@@ -1,0 +1,11 @@
+;-------------------------------------
+; XTime.DEF module definition file
+;-------------------------------------
+
+NAME           XTime  WINDOWAPI
+
+DESCRIPTION    'eXecute a command at a certain TIME (C) Aaron Walton, 1990'
+PROTMODE
+HEAPSIZE       1024
+STACKSIZE      8192
+EXPORTS        ClientWndProc
